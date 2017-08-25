@@ -1,0 +1,22 @@
+{
+  "name": "internet_slang_bot",
+  "version": "1.0.0",
+  "description": "Internet Slang Bot finds and defines popular internet slang and acronyms",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evandocarmo/internet_slang_bot.git"
+  },
+  "author": "Evan do Carmo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evandocarmo/internet_slang_bot/issues"
+  },
+  "homepage": "https://github.com/evandocarmo/internet_slang_bot#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0"
+  }
+}
