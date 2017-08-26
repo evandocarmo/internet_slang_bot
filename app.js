@@ -1,27 +1,32 @@
 require('dotenv').config();
+const client = require('./reddit-config');
+const mongoose = require('mongoose');
+const connection = mongoose.connect(process.env.MONGO_URL);
+const Slang = require('./models/slang');
 
-const Snoowrap = require('snoowrap');
-const Snoostorm = require('snoostorm');
-
-const r = new Snoowrap({
-    userAgent: 'internet_slang_bot',
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    username: process.env.REDDIT_USER,
-    password: process.env.REDDIT_PASS
-});
-const client = new Snoostorm(r);
-
-const streamOpts = {
-    subreddit: 'all',
-    results: 25
+const streamOptions = { // reddit API stream options
+  subreddit: 'all',
+  results: 25
 };
 
-const comments = client.CommentStream(streamOpts);
-
-comments.on('comment', (comment) => {
-    if(comment.body.includes(`AFAIK`) && comment.author !== process.env.REDDIT_USER){
-      comment.reply(`AFAIK means 'as far as I know'`);
-      console.log(comment);
+Slang.find({}, (err, slangs) => { //get all the slangs from database
+  if (err)
+    console.log(err);
+  let slangLookup = {};
+  for (let slang of slangs) {
+    slangLookup[slang.slang] = slang.definition; //creates a lookup table for the definitions
+  }
+  const comments = client.CommentStream(streamOptions);
+  comments.on('comment', (comment) => {
+    let wordArray = comment.body.match(/\b[A-Z]{3,}\b/g);
+    if (wordArray) {
+      console.log(wordArray);
+      for (let word of wordArray) {
+        if (slangLookup.hasOwnProperty(word.toLowerCase()) && comment.author !== process.env.REDDIT_USER) {
+          console.log(word, slangLookup[word.toLowerCase()]);
+          comment.reply(`${word} means '${slangLookup[word.toLowerCase()]}'. BEEP. BOP.`);
+        }
+      }
     }
-});
+  });
+})
