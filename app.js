@@ -27,7 +27,7 @@ Slang.find({}, (err, slangs) => { //get all the slangs from database
         let definition = slangLookup[lowerCaseAcronym];
         if (definition && comment.author !== process.env.REDDIT_USER && acronym.text.length > 2) {
           console.log(comment.link_permalink);
-          console.log(`${acronym.text} means '${definition}'.
+          comment.reply(`${acronym.text} means '${definition}'.
             BEEP. BOP. I'm a bot! Was this helpful? PM me for feedback.`);
         }
       }
