@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/evandocarmo/internet_slang_bot#readme",
   "dependencies": {
+    "compromise": "^10.7.2",
     "dotenv": "^4.0.0"
   }
 }

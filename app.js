@@ -3,6 +3,7 @@ const client = require('./reddit-config');
 const mongoose = require('mongoose');
 const connection = mongoose.connect(process.env.MONGO_URL);
 const Slang = require('./models/slang');
+const nlp = require('compromise');
 
 const streamOptions = { // reddit API stream options
   subreddit: 'all',
@@ -18,15 +19,17 @@ Slang.find({}, (err, slangs) => { //get all the slangs from database
   }
   const comments = client.CommentStream(streamOptions);
   comments.on('comment', (comment) => {
-    let wordArray = comment.body.match(/\b[A-Z]{3,}\b/g);
-    if (wordArray) {
-      console.log(wordArray);
-      for (let word of wordArray) {
-        if (slangLookup.hasOwnProperty(word.toLowerCase()) && comment.author !== process.env.REDDIT_USER) {
-          console.log(word, slangLookup[word.toLowerCase()]);
-          comment.reply(`${word} means '${slangLookup[word.toLowerCase()]}'. BEEP. BOP.`);
+    let text = nlp(comment.body);
+    let acronyms = text.acronyms().data();
+    if (acronyms.length)
+      for (let acronym of acronyms) {
+        let lowerCaseAcronym = acronym.text.toLowerCase();
+        let definition = slangLookup[lowerCaseAcronym];
+        if (definition && comment.author !== process.env.REDDIT_USER && acronym.text.length > 2) {
+          console.log(comment.link_permalink);
+          console.log(`${acronym.text} means '${definition}'.
+            BEEP. BOP. I'm a bot! Was this helpful? PM me for feedback.`);
         }
       }
-    }
   });
 })
